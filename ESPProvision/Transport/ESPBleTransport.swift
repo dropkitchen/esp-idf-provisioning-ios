@@ -40,7 +40,7 @@ protocol ESPBLETransportDelegate {
     /// one of the peripherals found here
     ///
     /// - Parameter peripherals: peripheral devices array
-    func peripheralsFound(peripherals: [String:CBPeripheral])
+    func peripheralsFound(peripherals: [CBPeripheral])
 
     /// No peripherals found with matching Service UUID
     ///
@@ -85,7 +85,7 @@ class ESPBleTransport: NSObject, ESPCommunicable {
 
     
     var centralManager: CBCentralManager!
-    var espressifPeripherals: [String:CBPeripheral] = [:]
+    var espressifPeripherals: [CBPeripheral] = []
     var currentPeripheral: CBPeripheral?
     var currentService: CBService?
     var bleConnectTimer = Timer()
@@ -139,7 +139,7 @@ class ESPBleTransport: NSObject, ESPCommunicable {
     ///   - path: Path of the configuration endpoint.
     ///   - data: Data to be sent.
     ///   - completionHandler: Handler called when data is sent.
-    func SendConfigData(path: String,
+    public func SendConfigData(path: String,
                         data: Data,
                         completionHandler: @escaping (Data?, Error?) -> Void) {
         ESPLog.log("Sending configration data to path \(path)")
@@ -273,10 +273,12 @@ extension ESPBleTransport: CBCentralManagerDelegate {
                         didDiscover peripheral: CBPeripheral,
                         advertisementData data: [String: Any],
                         rssi _: NSNumber) {
-        ESPLog.log("Peripheral devices discovered.\(data.debugDescription)")
-        if let peripheralName = data["kCBAdvDataLocalName"] as? String ?? peripheral.name  {
-            if peripheralName.lowercased().hasPrefix(deviceNamePrefix.lowercased()) {
-                espressifPeripherals[peripheralName] = peripheral
+        ESPLog.log("Peripheral devices discovered.")
+        if let peripheralName = peripheral.name {
+            if peripheralName.hasPrefix(deviceNamePrefix) {
+                if !(espressifPeripherals.filter { $0.name == peripheralName }.count > 0) {
+                    espressifPeripherals.append(peripheral)
+                }
             }
         }
     }

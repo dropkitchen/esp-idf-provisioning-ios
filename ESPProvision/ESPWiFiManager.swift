@@ -24,7 +24,7 @@ protocol ESPScanWifiListProtocol {
 }
 
 /// The `ESPWiFiManager` class manages methods related with Wi-Fi scanning and processing.
-class ESPWiFiManager {
+public class ESPWiFiManager {
     private let transport: ESPCommunicable
     private let security: ESPCodeable
     private var scanResult: [String: Espressif_WiFiScanResult] = [:]
@@ -198,4 +198,6 @@ class ESPWiFiManager {
         payload.cmdScanResult = configRequest
         return try security.encrypt(data: payload.serializedData())
     }
+  
+
 }

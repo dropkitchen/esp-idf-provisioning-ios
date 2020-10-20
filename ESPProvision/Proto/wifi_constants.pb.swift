@@ -33,19 +33,19 @@ private struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVer
     typealias Version = _2
 }
 
-enum Espressif_WifiStationState: SwiftProtobuf.Enum {
-    typealias RawValue = Int
+public enum Espressif_WifiStationState: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
     case connected // = 0
     case connecting // = 1
     case disconnected // = 2
     case connectionFailed // = 3
     case UNRECOGNIZED(Int)
 
-    init() {
+  public init() {
         self = .connected
     }
 
-    init?(rawValue: Int) {
+  public init?(rawValue: Int) {
         switch rawValue {
         case 0: self = .connected
         case 1: self = .connecting
@@ -55,7 +55,7 @@ enum Espressif_WifiStationState: SwiftProtobuf.Enum {
         }
     }
 
-    var rawValue: Int {
+  public var rawValue: Int {
         switch self {
         case .connected: return 0
         case .connecting: return 1
@@ -70,7 +70,7 @@ enum Espressif_WifiStationState: SwiftProtobuf.Enum {
 
     extension Espressif_WifiStationState: CaseIterable {
         // The compiler won't synthesize support with the UNRECOGNIZED case.
-        static var allCases: [Espressif_WifiStationState] = [
+      public static var allCases: [Espressif_WifiStationState] = [
             .connected,
             .connecting,
             .disconnected,
@@ -80,17 +80,17 @@ enum Espressif_WifiStationState: SwiftProtobuf.Enum {
 
 #endif // swift(>=4.2)
 
-enum Espressif_WifiConnectFailedReason: SwiftProtobuf.Enum {
-    typealias RawValue = Int
+public enum Espressif_WifiConnectFailedReason: SwiftProtobuf.Enum {
+  public typealias RawValue = Int
     case authError // = 0
     case networkNotFound // = 1
     case UNRECOGNIZED(Int)
 
-    init() {
+  public init() {
         self = .authError
     }
 
-    init?(rawValue: Int) {
+  public init?(rawValue: Int) {
         switch rawValue {
         case 0: self = .authError
         case 1: self = .networkNotFound
@@ -98,7 +98,7 @@ enum Espressif_WifiConnectFailedReason: SwiftProtobuf.Enum {
         }
     }
 
-    var rawValue: Int {
+  public var rawValue: Int {
         switch self {
         case .authError: return 0
         case .networkNotFound: return 1
@@ -111,7 +111,7 @@ enum Espressif_WifiConnectFailedReason: SwiftProtobuf.Enum {
 
     extension Espressif_WifiConnectFailedReason: CaseIterable {
         // The compiler won't synthesize support with the UNRECOGNIZED case.
-        static var allCases: [Espressif_WifiConnectFailedReason] = [
+      public static var allCases: [Espressif_WifiConnectFailedReason] = [
             .authError,
             .networkNotFound,
         ]
@@ -199,7 +199,7 @@ struct Espressif_WifiConnectedState {
 private let _protobuf_package = "espressif"
 
 extension Espressif_WifiStationState: SwiftProtobuf._ProtoNameProviding {
-    static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
         0: .same(proto: "Connected"),
         1: .same(proto: "Connecting"),
         2: .same(proto: "Disconnected"),
@@ -208,7 +208,7 @@ extension Espressif_WifiStationState: SwiftProtobuf._ProtoNameProviding {
 }
 
 extension Espressif_WifiConnectFailedReason: SwiftProtobuf._ProtoNameProviding {
-    static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
         0: .same(proto: "AuthError"),
         1: .same(proto: "NetworkNotFound"),
     ]

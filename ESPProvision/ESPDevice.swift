@@ -55,7 +55,7 @@ public protocol ESPDeviceConnectionDelegate {
 public class ESPDevice {
     
     /// Session instance of device.
-    var session:ESPSession!
+    public var session:ESPSession!
     /// Name of device.
     var deviceName: String
     /// BLE transport layer.
@@ -71,7 +71,7 @@ public class ESPDevice {
     /// Completion handler for BLE connection status.
     var bleConnectionStatusHandler: ((ESPSessionStatus) -> Void)?
     /// List of capabilities of a device.
-    public var capabilities: [String]?
+    var capabilities: [String]?
     /// Security implementation.
     public var security: ESPSecurity
     /// Mode of transport.
@@ -80,8 +80,6 @@ public class ESPDevice {
     public var delegate:ESPDeviceConnectionDelegate?
     /// Security layer of device.
     public var securityLayer: ESPCodeable!
-    /// Storing device version information
-    public var versionInfo:NSDictionary?
     
     private var transportLayer: ESPCommunicable!
     private var provision: ESPProvision!
@@ -274,8 +272,6 @@ public class ESPDevice {
         } else {
             provisionDevice(ssid: ssid, passPhrase: passPhrase, retryOnce: true, completionHandler: completionHandler)
         }
-      
-        
     }
     
     private func provisionDevice(ssid: String, passPhrase: String = "", retryOnce: Bool, completionHandler: @escaping (ESPProvisionStatus) -> Void) {
@@ -363,17 +359,78 @@ public class ESPDevice {
         retryScan = true
         scanDeviceForWifiList(completionHandler: completionHandler)
     }
+  
+  /// Get Pin and NativeID from device.
+  ///
+  /// - Parameter completionHandler: The completion handler that is called when pinis scanned.
+  ///                                Parameter of block include pin and nativeID or error in case of failure.
+  public func getPopAndNativeID(userID: UInt32, completionHandler: @escaping (String?, String?, ESPProvisionError? ) -> Void) {
+    
+    var configRequest = ProvPopCmdGetPop()
+    let double = Date().timeIntervalSince1970
+    configRequest.timestamp = UInt32(double)
+    configRequest.userID = userID
+    var payload = ProvPopPayload()
+    payload.msg = .typeCmdGetPop
+    payload.cmdGetPop = configRequest
+    
+    do {
+      let data = try session.securityLayer.encrypt(data: payload.serializedData())
+      session.transportLayer.SendConfigData(path: "prov-pop", data: data!) { response, error in
+        guard error == nil, response != nil else {
+          return
+        }
+
+        if let decryptedResponse =  self.session.securityLayer.decrypt(data: response!) {
+          do {
+            let provPopPayload = try ProvPopPayload(serializedData: decryptedResponse)
+            let respGetPop = provPopPayload.respGetPop
+            let provPopResponseGetPopNativeID = String(decoding:respGetPop.nativeID, as: UTF8.self)
+            let provPopResponseGetPop = String(decoding:respGetPop.pop, as: UTF8.self)
+            completionHandler(provPopResponseGetPopNativeID, provPopResponseGetPop, nil)
+          } catch {
+            completionHandler(nil, nil, .sessionError)
+          }
+        }
+      }
+    } catch {
+      completionHandler(nil, nil, .configurationError(error))
+    }
+  }
+  
+  public func shutDownProvisioning(completionHandler: @escaping (Bool, ESPProvisionError? ) -> Void) {
+    var payload = ProvShutdownPayload()
+    payload.cmdShutdown.delay = 10
+    
+    do {
+      let data = try session.securityLayer.encrypt(data: payload.serializedData())
+      session.transportLayer.SendConfigData(path: "prov-shutdown", data: data!) { response, error in
+        guard error == nil, response != nil else {
+          return
+        }
+
+        if let decryptedResponse =  self.session.securityLayer.decrypt(data: response!) {
+          do {
+            let provShuwDownPayload = try ProvShutdownPayload(serializedData: decryptedResponse)
+            let resShutDown = provShuwDownPayload.respShutdown
+            let respShutDown = resShutDown.status == .provShutdownSuccess ? true : false
+            completionHandler(respShutDown, nil)
+          } catch {
+            completionHandler(false, .sessionError)
+          }
+        }
+      }
+    } catch {
+      completionHandler(false, .configurationError(error))
+    }
+  }
     
     private func scanDeviceForWifiList(completionHandler: @escaping ([ESPWifiNetwork]?,ESPWiFiScanError?) -> Void) {
-        if let capability = self.capabilities, capability.contains(ESPConstants.wifiScanCapability) {
-            self.wifiListCompletionHandler = completionHandler
-            let scanWifiManager: ESPWiFiManager = ESPWiFiManager(session: self.session!)
-            scanWifiManager.delegate = self
-            wifiListCompletionHandler = completionHandler
-            scanWifiManager.startWifiScan()
-        } else {
-            completionHandler(nil,.emptyResultCount)
-        }
+        self.wifiListCompletionHandler = completionHandler
+        let scanWifiManager: ESPWiFiManager = ESPWiFiManager(session: self.session!)
+        scanWifiManager.delegate = self
+        wifiListCompletionHandler = completionHandler
+        scanWifiManager.startWifiScan()
     }
     /// Initialise session with `ESPDevice`.
     ///
@@ -474,9 +531,6 @@ public class ESPDevice {
                     default:
                         self.espSoftApTransport.utility.deviceVersionInfo = result
                 }
-                
-                self.versionInfo = result
-                
                 if let prov = result[ESPConstants.provKey] as? NSDictionary, let capabilities = prov[ESPConstants.capabilitiesKey] as? [String] {
                     self.capabilities = capabilities
                     DispatchQueue.main.async {
