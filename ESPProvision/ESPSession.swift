@@ -20,7 +20,7 @@ import Foundation
 
 /// The `ESPSession` class contains information related with session configuration.
 /// Provides method to establish session with a device for communication.
-class ESPSession {
+public class ESPSession {
     
     private var transportLayerPrivate: ESPCommunicable
     private var securityLayerPrivate: ESPCodeable

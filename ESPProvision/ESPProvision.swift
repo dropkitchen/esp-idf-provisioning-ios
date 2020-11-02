@@ -21,7 +21,7 @@ import UIKit
 
 /// Provision class which exposes the main API for provisioning
 /// the device with Wifi credentials.
-class ESPProvision {
+public class ESPProvision {
     private let session: ESPSession
     private let transportLayer: ESPCommunicable
     private let securityLayer: ESPCodeable
@@ -42,7 +42,7 @@ class ESPProvision {
     /// which has been successfully initialised by calling Session.initialize
     ///
     /// - Parameter session: Initialised session object
-    init(session: ESPSession) {
+    public init(session: ESPSession) {
         ESPLog.log("Initialising provision class.")
         self.session = session
         transportLayer = session.transportLayer
@@ -119,7 +119,7 @@ class ESPProvision {
         }
     }
 
-    private func pollForWifiConnectionStatus(completionHandler: @escaping (Espressif_WifiStationState, Espressif_WifiConnectFailedReason, Error?) -> Swift.Void) {
+    public func pollForWifiConnectionStatus(completionHandler: @escaping (Espressif_WifiStationState, Espressif_WifiConnectFailedReason, Error?) -> Swift.Void) {
         do {
             ESPLog.log("Start polling for Wi-Fi connection status...")
             let message = try createGetWifiConfigRequest()
