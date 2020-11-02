@@ -40,7 +40,7 @@ ESPProvision is a provisioning library written in Swift. It provides mechanism t
 
 ```ruby
 
-pod 'ESPProvision'
+pod 'DropESPProvision'
 
 ```
 
