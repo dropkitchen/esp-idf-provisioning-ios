@@ -286,14 +286,14 @@ public class ESPProvisionManager: NSObject, AVCaptureMetadataOutputObjectsDelega
 }
 
 extension ESPProvisionManager: ESPBLETransportDelegate {
-    func peripheralsFound(peripherals: [String:CBPeripheral]) {
+    func peripheralsFound(peripherals: [CBPeripheral]) {
         
         ESPLog.log("Ble devices found :\(peripherals)")
         
         espDevices.removeAll()
-        for key in peripherals.keys {
-           let newESPDevice = ESPDevice(name: key, security: self.security, transport: .ble, proofOfPossession: espBleTransport.proofOfPossession)
-            newESPDevice.peripheral = peripherals[key]
+        for peripheral in peripherals {
+            let newESPDevice = ESPDevice(name: peripheral.name ?? "", security: self.security, transport: .ble, proofOfPossession: espBleTransport.proofOfPossession)
+            newESPDevice.peripheral = peripheral
             newESPDevice.espBleTransport = espBleTransport
             espDevices.append(newESPDevice)
         }
