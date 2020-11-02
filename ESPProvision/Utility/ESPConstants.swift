@@ -38,6 +38,8 @@ struct ESPConstants {
     static let scanPath = "prov-scan"
     /// Path for establishing session with device.
     static let sessionPath = "prov-session"
+    /// Part for pin
+    static let scanPin = "prov-pop"
 
     // MARK: BLE Characteristics
     
